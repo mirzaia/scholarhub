@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scholarship {
+  id               String   @id @default(uuid())
+  name             String
+  slug             String   @unique
+  description      String?
+  officialUrl      String   @map("official_url")
+  country          String
+  providerType     String   @map("provider_type")
+  degreeLevel      String   @map("degree_level")
+  fundingType      String   @map("funding_type")
+  status           String   @default("upcoming")
+  openDate         String?  @map("open_date")
+  closeDate        String?  @map("close_date")
+  defaultChecklist String?  @default("[]") @map("default_checklist")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  dates        ScholarshipDate[]
+  links        ScholarshipLink[]
+  universities ScholarshipUniversity[]
+  applications UserApplication[]
+
+  @@map("scholarships")
+}
+
+model ScholarshipDate {
+  id            String @id @default(uuid())
+  scholarshipId String @map("scholarship_id")
+  label         String
+  dateValue     String @map("date_value")
+  note          String?
+
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@map("scholarship_dates")
+}
+
+model ScholarshipLink {
+  id            String @id @default(uuid())
+  scholarshipId String @map("scholarship_id")
+  label         String
+  url           String
+  linkType      String @default("official") @map("link_type")
+
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@map("scholarship_links")
+}
+
+model University {
+  id          String   @id @default(uuid())
+  name        String
+  country     String
+  website     String?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  links        UniversityLink[]
+  scholarships ScholarshipUniversity[]
+
+  @@map("universities")
+}
+
+model UniversityLink {
+  id           String @id @default(uuid())
+  universityId String @map("university_id")
+  label        String
+  url          String
+  linkType     String @default("official") @map("link_type")
+
+  university University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@map("university_links")
+}
+
+model ScholarshipUniversity {
+  id            String  @id @default(uuid())
+  scholarshipId String  @map("scholarship_id")
+  universityId  String  @map("university_id")
+  note          String?
+
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
+  university  University  @relation(fields: [universityId], references: [id])
+
+  @@unique([scholarshipId, universityId])
+  @@map("scholarship_universities")
+}
+
+model UserProfile {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  nationality   String   @default("Indonesian")
+  degreeCurrent String?  @map("degree_current")
+  degreeTarget  String?  @map("degree_target")
+  gpa           Float?
+  age           Int?
+  preferences   String?  @default("{}")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  applications UserApplication[]
+
+  @@map("user_profiles")
+}
+
+model UserApplication {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  scholarshipId String    @map("scholarship_id")
+  status        String    @default("interested")
+  notes         String?
+  checklist     String?   @default("[]")
+  appliedAt     DateTime? @map("applied_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user        UserProfile @relation(fields: [userId], references: [id])
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
+
+  @@unique([userId, scholarshipId])
+  @@map("user_applications")
+}
