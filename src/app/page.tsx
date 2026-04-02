@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getScholarships, getScholarshipStats, getUpcomingDeadlines } from "@/services/scholarships";
 import { getUserApplications } from "@/services/applications";
 import { daysUntil, formatDate } from "@/lib/utils";
+import { CopyCheck, CalendarClock, Lock, ClipboardList, Clock, ArrowRight, Building2, GraduationCap, MapPin, Search } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -14,94 +15,124 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <>
-      <div className="page-header">
-        <h1>📊 Dashboard Overview</h1>
-        <p>Track your scholarship applications and upcoming deadlines</p>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
+          <p className="text-slate-500 mt-1 text-sm">
+            Track your scholarship applications and upcoming deadlines
+          </p>
+        </div>
       </div>
 
       {/* Clickable Stats Row */}
-      <div className="stats-row">
-        <Link href="/scholarships?status=open" className="stat-card green clickable">
-          <div className="stat-card-icon">🟢</div>
-          <p className="stat-card-value">{stats.open}</p>
-          <p className="stat-card-label">Open Scholarships</p>
-          <div className="stat-card-hint">Click to browse →</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Link href="/scholarships?status=open" className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all group block">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+              <CopyCheck className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+          </div>
+          <p className="text-3xl font-bold text-slate-800 mb-1">{stats.open}</p>
+          <p className="text-sm font-medium text-slate-500">Open Scholarships</p>
         </Link>
-        <Link href="/scholarships?status=upcoming" className="stat-card blue clickable">
-          <div className="stat-card-icon">🔜</div>
-          <p className="stat-card-value">{stats.upcoming}</p>
-          <p className="stat-card-label">Upcoming</p>
-          <div className="stat-card-hint">Click to browse →</div>
+        <Link href="/scholarships?status=upcoming" className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group block">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+              <CalendarClock className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
+          </div>
+          <p className="text-3xl font-bold text-slate-800 mb-1">{stats.upcoming}</p>
+          <p className="text-sm font-medium text-slate-500">Upcoming</p>
         </Link>
-        <Link href="/scholarships?status=closed" className="stat-card red clickable">
-          <div className="stat-card-icon">🔴</div>
-          <p className="stat-card-value">{stats.closed}</p>
-          <p className="stat-card-label">Closed</p>
-          <div className="stat-card-hint">Click to browse →</div>
+        <Link href="/scholarships?status=closed" className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-red-300 transition-all group block">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 group-hover:scale-110 transition-transform">
+              <Lock className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" />
+          </div>
+          <p className="text-3xl font-bold text-slate-800 mb-1">{stats.closed}</p>
+          <p className="text-sm font-medium text-slate-500">Closed</p>
         </Link>
-        <Link href="/tracker" className="stat-card purple clickable">
-          <div className="stat-card-icon">📝</div>
-          <p className="stat-card-value">{applications.length}</p>
-          <p className="stat-card-label">My Applications</p>
-          <div className="stat-card-hint">View tracker →</div>
+        <Link href="/tracker" className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group block">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+              <ClipboardList className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+          </div>
+          <p className="text-3xl font-bold text-slate-800 mb-1">{applications.length}</p>
+          <p className="text-sm font-medium text-slate-500">My Applications</p>
         </Link>
       </div>
 
-      <div className="two-col">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Upcoming Deadlines */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">⏰ Upcoming Deadlines</h2>
-            <Link href="/scholarships?status=open" className="section-link">
-              View all →
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-amber-500" />
+              Upcoming Deadlines
+            </h2>
+            <Link href="/scholarships?status=open" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+              View all &rarr;
             </Link>
           </div>
-          <div className="deadline-list">
+          <div className="space-y-3">
             {deadlines.map((s: { id: string; name: string; slug: string; country: string; closeDate: string | null }) => {
               const days = s.closeDate ? daysUntil(s.closeDate) : null;
-              const daysClass =
-                days !== null && days <= 7
-                  ? "days-urgent"
-                  : days !== null && days <= 30
-                    ? "days-warning"
-                    : "days-safe";
+              const isUrgent = days !== null && days <= 7;
+              const isWarning = days !== null && days <= 30 && days > 7;
 
               return (
                 <Link
                   href={`/scholarships/${s.slug}`}
                   key={s.id}
-                  className="deadline-item"
+                  className="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between hover:border-slate-300 hover:shadow-sm transition-all"
                 >
-                  <div className="deadline-item-info">
-                    <span className="deadline-item-name">{s.name}</span>
-                    <span className="deadline-item-country">{s.country}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{s.name}</p>
+                    <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                      <MapPin className="w-3 h-3" /> {s.country}
+                    </p>
                   </div>
                   {days !== null && (
-                    <span className={`deadline-item-days ${daysClass}`}>
-                      {days > 0 ? `${days} days left` : "Expired"}
-                    </span>
+                    <div className="flex-shrink-0 ml-4">
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        isUrgent ? 'bg-red-100 text-red-700' : 
+                        isWarning ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                      }`}>
+                        {days > 0 ? `${days} days left` : "Expired"}
+                      </span>
+                    </div>
                   )}
                 </Link>
               );
             })}
             {deadlines.length === 0 && (
-              <div className="empty-state">
-                <p>No upcoming deadlines</p>
+              <div className="text-center py-8 border border-dashed border-slate-200 rounded-lg">
+                <p className="text-slate-500 text-sm">No upcoming deadlines</p>
               </div>
             )}
           </div>
-        </div>
+        </section>
 
         {/* My Applications Quick View */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">📋 My Applications</h2>
-            <Link href="/tracker" className="section-link">
-              View tracker →
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-indigo-500" />
+              My Applications
+            </h2>
+            <Link href="/tracker" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+              View tracker &rarr;
             </Link>
           </div>
-          <div className="deadline-list">
+          <div className="space-y-3">
             {applications.slice(0, 5).map((app: { id: string; status: string; checklist: string | null; scholarship: { name: string } }) => {
               const checklist = app.checklist ? JSON.parse(app.checklist as string) : [];
               const done = checklist.filter((c: { done: boolean }) => c.done).length;
@@ -109,22 +140,22 @@ export default async function DashboardPage() {
               const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
               return (
-                <div key={app.id} className="tracker-card">
-                  <div className="tracker-card-header">
-                    <h3 className="tracker-card-name">{app.scholarship.name}</h3>
-                    <span className={`badge badge-${app.status}`}>
+                <div key={app.id} className="bg-white border border-slate-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-slate-800 truncate pr-4">{app.scholarship.name}</h3>
+                    <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                       {app.status.replace("_", " ")}
                     </span>
                   </div>
                   {total > 0 && (
-                    <div className="tracker-progress">
-                      <div className="progress-label">
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
                         <span>Progress</span>
-                        <span>{pct}%</span>
+                        <span className="font-medium">{pct}%</span>
                       </div>
-                      <div className="progress-bar-bg">
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="progress-bar-fill"
+                          className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -134,63 +165,83 @@ export default async function DashboardPage() {
               );
             })}
             {applications.length === 0 && (
-              <div className="empty-state">
-                <p>No applications tracked yet</p>
-                <Link href="/scholarships?status=open" className="section-link" style={{ marginTop: 8, display: "inline-block" }}>
-                  Browse open scholarships →
+              <div className="text-center py-8 border border-dashed border-slate-200 rounded-lg flex flex-col items-center">
+                <Search className="w-8 h-8 text-slate-300 mb-2" />
+                <p className="text-slate-500 text-sm">No applications tracked yet</p>
+                <Link href="/scholarships?status=open" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium mt-2">
+                  Browse open scholarships
                 </Link>
               </div>
             )}
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Recently Added Scholarships */}
-      <div className="section" style={{ marginTop: 16 }}>
-        <div className="section-header">
-          <h2 className="section-title">🆕 Recently Added Scholarships</h2>
-          <Link href="/scholarships" className="section-link">
-            Browse all →
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-emerald-500" />
+            Recently Added Scholarships
+          </h2>
+          <Link href="/scholarships" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+            Browse all &rarr;
           </Link>
         </div>
-        <div className="card-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {recentScholarships.slice(0, 6).map((s: { id: string; name: string; slug: string; description: string | null; country: string; status: string; fundingType: string; degreeLevel: string; closeDate: string | null; openDate: string | null }) => {
             const days = s.closeDate ? daysUntil(s.closeDate) : null;
+            const isUrgent = days !== null && days <= 7;
+            const isWarning = days !== null && days <= 30 && days > 7;
 
             return (
               <Link
                 href={`/scholarships/${s.slug}`}
                 key={s.id}
-                className="scholarship-card"
+                className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col h-full"
               >
-                <div className="scholarship-card-header">
-                  <h3 className="scholarship-card-title">{s.name}</h3>
-                  <span className={`badge badge-${s.status}`}>{s.status}</span>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <h3 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">{s.name}</h3>
+                  <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
+                    s.status === 'open' ? 'bg-emerald-100 text-emerald-700' : 
+                    s.status === 'closed' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+                  </span>
                 </div>
-                <div className="scholarship-card-meta">
-                  <span className={`badge badge-${s.fundingType}`}>
+                
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">
                     {s.fundingType === "full" ? "Fully Funded" : s.fundingType}
                   </span>
-                  <span className="badge" style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8" }}>
+                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 text-xs font-medium">
                     {s.degreeLevel}
                   </span>
                 </div>
+
                 {s.description && (
-                  <p className="scholarship-card-desc">{s.description}</p>
+                  <p className="text-sm text-slate-500 line-clamp-2 mb-4 flex-grow tracking-wide leading-relaxed">
+                    {s.description}
+                  </p>
                 )}
-                <div className="scholarship-card-footer">
-                  <span className="scholarship-card-country">📍 {s.country}</span>
+
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                  <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" /> {s.country}
+                  </span>
+                  
                   {days !== null && s.status === "open" && (
-                    <span
-                      className={`scholarship-card-deadline ${days <= 7 ? "deadline-urgent" : days <= 30 ? "deadline-soon" : ""
-                        }`}
-                    >
-                      ⏰ {days > 0 ? `${days}d left` : "Expired"}
+                    <span className={`text-xs font-bold flex items-center gap-1 ${
+                      isUrgent ? 'text-red-600 animate-pulse' : isWarning ? 'text-amber-600' : 'text-slate-500'
+                    }`}>
+                      <Clock className="w-3.5 h-3.5" />
+                      {days > 0 ? `${days}d left` : "Expired"}
                     </span>
                   )}
                   {s.status === "upcoming" && s.openDate && (
-                    <span className="scholarship-card-deadline">
-                      🔜 Opens {formatDate(s.openDate)}
+                    <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
+                      <CalendarClock className="w-3.5 h-3.5" />
+                      Opens {formatDate(s.openDate)}
                     </span>
                   )}
                 </div>
@@ -198,7 +249,7 @@ export default async function DashboardPage() {
             );
           })}
         </div>
-      </div>
-    </>
+      </section>
+    </main>
   );
 }
