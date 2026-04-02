@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { APPLICATION_STATUSES } from "@/lib/utils";
+import { Bookmark, ChevronDown } from "lucide-react";
 
 interface TrackButtonProps {
     scholarshipId: string;
@@ -48,64 +49,40 @@ export default function TrackButton({
 
     if (saving) {
         return (
-            <button className="btn btn-secondary" disabled>
-                ⏳ Saving...
+            <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-400 cursor-not-allowed" disabled>
+                Saving...
             </button>
         );
     }
 
     return (
-        <div style={{ position: "relative" }}>
+        <div className="relative">
             <button
-                className={`btn ${status ? "btn-secondary" : "btn-primary"}`}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm ${
+                    status
+                        ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                }`}
                 onClick={() => setShowDropdown(!showDropdown)}
             >
+                <Bookmark className="w-4 h-4" />
                 {status ? (
-                    <>📋 {status.replace("_", " ")} ▾</>
+                    <>{status.replace("_", " ")} <ChevronDown className="w-3.5 h-3.5" /></>
                 ) : (
-                    <>📌 Track This Scholarship</>
+                    <>Track This Scholarship</>
                 )}
             </button>
             {showDropdown && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        marginTop: 8,
-                        background: "var(--bg-card)",
-                        border: "1px solid var(--border-color)",
-                        borderRadius: "var(--radius-sm)",
-                        padding: 4,
-                        zIndex: 100,
-                        minWidth: 180,
-                        boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
-                    }}
-                >
+                <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-lg py-1 z-50 min-w-[180px] shadow-lg">
                     {APPLICATION_STATUSES.map((s) => (
                         <button
                             key={s}
                             onClick={() => handleTrack(s)}
-                            style={{
-                                display: "block",
-                                width: "100%",
-                                padding: "8px 12px",
-                                background: s === status ? "rgba(99,102,241,0.12)" : "transparent",
-                                border: "none",
-                                borderRadius: 6,
-                                color: "var(--text-primary)",
-                                fontSize: 13,
-                                textAlign: "left",
-                                cursor: "pointer",
-                                textTransform: "capitalize",
-                            }}
-                            onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = "rgba(99,102,241,0.12)")
-                            }
-                            onMouseLeave={(e) =>
-                            (e.currentTarget.style.background =
-                                s === status ? "rgba(99,102,241,0.12)" : "transparent")
-                            }
+                            className={`block w-full px-4 py-2 text-left text-sm capitalize transition-colors ${
+                                s === status
+                                    ? 'bg-indigo-50 text-indigo-700 font-medium'
+                                    : 'text-slate-700 hover:bg-slate-50'
+                            }`}
                         >
                             {s.replace("_", " ")}
                         </button>

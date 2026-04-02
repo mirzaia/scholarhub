@@ -11,6 +11,7 @@ import {
     FUNDING_LABELS,
     SCHOLARSHIP_STATUSES,
 } from "@/lib/utils";
+import { Settings, Plus, X, Trash2, Save, Loader2, MapPin } from "lucide-react";
 
 interface Scholarship {
     id: string;
@@ -74,7 +75,6 @@ export default function AdminScholarshipsPage() {
                     description: description || undefined,
                 }),
             });
-            // Reset form
             setName("");
             setOfficialUrl("");
             setCountry("");
@@ -95,185 +95,109 @@ export default function AdminScholarshipsPage() {
         fetchScholarships();
     };
 
+    const selectClasses = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-indigo-400 cursor-pointer";
+    const inputClasses = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition";
+    const labelClasses = "block text-xs font-medium text-slate-500 mb-1.5";
+
     return (
-        <>
-            <div className="page-header">
-                <h1>⚙️ Manage Scholarships</h1>
-                <p>Add, edit, and remove scholarships from the database</p>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Header */}
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <Settings className="w-7 h-7 text-indigo-500" />
+                    Manage Scholarships
+                </h1>
+                <p className="text-slate-500 mt-1 text-sm">Add, edit, and remove scholarships from the database</p>
             </div>
 
-            <div style={{ marginBottom: 24 }}>
+            <div className="mb-6">
                 <button
-                    className="btn btn-primary"
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm ${
+                        showForm
+                            ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                    }`}
                     onClick={() => setShowForm(!showForm)}
                 >
-                    {showForm ? "✕ Cancel" : "➕ Add Scholarship"}
+                    {showForm ? <><X className="w-4 h-4" /> Cancel</> : <><Plus className="w-4 h-4" /> Add Scholarship</>}
                 </button>
             </div>
 
             {showForm && (
-                <div className="detail-section" style={{ marginBottom: 24 }}>
-                    <h2>New Scholarship</h2>
+                <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm mb-6">
+                    <h2 className="text-lg font-semibold text-slate-800 mb-5">New Scholarship</h2>
                     <form onSubmit={handleSubmit}>
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
-                                gap: 16,
-                            }}
-                        >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Name *
-                                </label>
-                                <input
-                                    className="search-input"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
-                                    style={{ width: "100%" }}
-                                    placeholder="e.g. Chevening Scholarship"
-                                />
+                                <label className={labelClasses}>Name *</label>
+                                <input className={inputClasses} value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. Chevening Scholarship" />
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Official URL *
-                                </label>
-                                <input
-                                    className="search-input"
-                                    value={officialUrl}
-                                    onChange={(e) => setOfficialUrl(e.target.value)}
-                                    required
-                                    style={{ width: "100%" }}
-                                    placeholder="https://..."
-                                />
+                                <label className={labelClasses}>Official URL *</label>
+                                <input className={inputClasses} value={officialUrl} onChange={(e) => setOfficialUrl(e.target.value)} required placeholder="https://..." />
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Country *
-                                </label>
-                                <input
-                                    className="search-input"
-                                    value={country}
-                                    onChange={(e) => setCountry(e.target.value)}
-                                    required
-                                    style={{ width: "100%" }}
-                                    placeholder="e.g. United Kingdom"
-                                />
+                                <label className={labelClasses}>Country *</label>
+                                <input className={inputClasses} value={country} onChange={(e) => setCountry(e.target.value)} required placeholder="e.g. United Kingdom" />
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Status
-                                </label>
-                                <select
-                                    className="filter-select"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    style={{ width: "100%" }}
-                                >
+                                <label className={labelClasses}>Status</label>
+                                <select className={selectClasses} value={status} onChange={(e) => setStatus(e.target.value)}>
                                     {SCHOLARSHIP_STATUSES.map((s) => (
-                                        <option key={s} value={s}>
-                                            {s}
-                                        </option>
+                                        <option key={s} value={s}>{s}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Provider Type
-                                </label>
-                                <select
-                                    className="filter-select"
-                                    value={providerType}
-                                    onChange={(e) => setProviderType(e.target.value)}
-                                    style={{ width: "100%" }}
-                                >
+                                <label className={labelClasses}>Provider Type</label>
+                                <select className={selectClasses} value={providerType} onChange={(e) => setProviderType(e.target.value)}>
                                     {PROVIDER_TYPES.map((p) => (
-                                        <option key={p} value={p}>
-                                            {PROVIDER_LABELS[p]}
-                                        </option>
+                                        <option key={p} value={p}>{PROVIDER_LABELS[p]}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Degree Level
-                                </label>
-                                <select
-                                    className="filter-select"
-                                    value={degreeLevel}
-                                    onChange={(e) => setDegreeLevel(e.target.value)}
-                                    style={{ width: "100%" }}
-                                >
+                                <label className={labelClasses}>Degree Level</label>
+                                <select className={selectClasses} value={degreeLevel} onChange={(e) => setDegreeLevel(e.target.value)}>
                                     {DEGREE_LEVELS.map((d) => (
-                                        <option key={d} value={d}>
-                                            {DEGREE_LABELS[d]}
-                                        </option>
+                                        <option key={d} value={d}>{DEGREE_LABELS[d]}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Funding Type
-                                </label>
-                                <select
-                                    className="filter-select"
-                                    value={fundingType}
-                                    onChange={(e) => setFundingType(e.target.value)}
-                                    style={{ width: "100%" }}
-                                >
+                                <label className={labelClasses}>Funding Type</label>
+                                <select className={selectClasses} value={fundingType} onChange={(e) => setFundingType(e.target.value)}>
                                     {FUNDING_TYPES.map((f) => (
-                                        <option key={f} value={f}>
-                                            {FUNDING_LABELS[f]}
-                                        </option>
+                                        <option key={f} value={f}>{FUNDING_LABELS[f]}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Open Date
-                                </label>
-                                <input
-                                    type="date"
-                                    className="search-input"
-                                    value={openDate}
-                                    onChange={(e) => setOpenDate(e.target.value)}
-                                    style={{ width: "100%", colorScheme: "dark" }}
-                                />
+                                <label className={labelClasses}>Open Date</label>
+                                <input type="date" className={inputClasses} value={openDate} onChange={(e) => setOpenDate(e.target.value)} />
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                    Close Date
-                                </label>
-                                <input
-                                    type="date"
-                                    className="search-input"
-                                    value={closeDate}
-                                    onChange={(e) => setCloseDate(e.target.value)}
-                                    style={{ width: "100%", colorScheme: "dark" }}
-                                />
+                                <label className={labelClasses}>Close Date</label>
+                                <input type="date" className={inputClasses} value={closeDate} onChange={(e) => setCloseDate(e.target.value)} />
                             </div>
                         </div>
-                        <div style={{ marginTop: 16 }}>
-                            <label style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
-                                Description
-                            </label>
+                        <div className="mt-4">
+                            <label className={labelClasses}>Description</label>
                             <textarea
-                                className="search-input"
+                                className={`${inputClasses} resize-y`}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={3}
-                                style={{ width: "100%", resize: "vertical" }}
                                 placeholder="Brief description of the scholarship..."
                             />
                         </div>
-                        <div style={{ marginTop: 16 }}>
+                        <div className="mt-5">
                             <button
                                 type="submit"
-                                className="btn btn-primary"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={saving}
                             >
-                                {saving ? "⏳ Saving..." : "💾 Save Scholarship"}
+                                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Save className="w-4 h-4" /> Save Scholarship</>}
                             </button>
                         </div>
                     </form>
@@ -282,55 +206,49 @@ export default function AdminScholarshipsPage() {
 
             {/* Scholarship List */}
             {loading ? (
-                <div className="empty-state">
-                    <div className="empty-state-icon">⏳</div>
-                    <h3>Loading...</h3>
+                <div className="text-center py-20">
+                    <Loader2 className="w-8 h-8 text-indigo-400 mx-auto mb-3 animate-spin" />
+                    <h3 className="text-base font-semibold text-slate-600">Loading...</h3>
                 </div>
             ) : (
-                <div className="detail-section">
-                    <h2>
+                <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <h2 className="text-lg font-semibold text-slate-800 mb-4">
                         All Scholarships ({scholarships.length})
                     </h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div className="space-y-2">
                         {scholarships.map((s) => (
                             <div
                                 key={s.id}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    padding: "12px 16px",
-                                    borderRadius: "var(--radius-sm)",
-                                    border: "1px solid var(--border-color)",
-                                    transition: "border-color 0.2s ease",
-                                }}
+                                className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors"
                             >
-                                <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}>
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
                                     <Link
                                         href={`/scholarships/${s.slug}`}
-                                        style={{ textDecoration: "none", color: "var(--text-primary)", fontWeight: 500, fontSize: 14 }}
+                                        className="text-sm font-medium text-slate-800 hover:text-indigo-600 transition-colors truncate"
                                     >
                                         {s.name}
                                     </Link>
-                                    <span className={`badge badge-${s.status}`} style={{ fontSize: 10 }}>
+                                    <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                        s.status === 'open' ? 'bg-emerald-100 text-emerald-700' :
+                                        s.status === 'closed' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                                    }`}>
                                         {s.status}
                                     </span>
-                                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                                        📍 {s.country}
+                                    <span className="text-xs text-slate-400 flex items-center gap-1 flex-shrink-0">
+                                        <MapPin className="w-3 h-3" /> {s.country}
                                     </span>
                                 </div>
                                 <button
-                                    className="btn btn-secondary btn-sm"
+                                    className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-red-500 text-xs font-medium rounded-lg hover:bg-red-50 hover:border-red-200 transition-colors"
                                     onClick={() => handleDelete(s.id)}
-                                    style={{ color: "var(--accent-red)", fontSize: 11 }}
                                 >
-                                    🗑️ Delete
+                                    <Trash2 className="w-3.5 h-3.5" /> Delete
                                 </button>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
-        </>
+        </main>
     );
 }
