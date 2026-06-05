@@ -1,91 +1,150 @@
-# ScholarHub — Scholarship Monitoring Dashboard
+# ScholarHub - Scholarship Monitoring Dashboard
 
-ScholarHub is a comprehensive technical solution designed to aggregate and monitor scholarships specifically for Indonesian students. It provides a centralized dashboard to track application progress, manage checklists, and monitor upcoming deadlines.
+ScholarHub is a Next.js dashboard for Indonesian students to discover scholarships, monitor deadlines, browse related universities, and track personal application progress. The app is currently built as an MVP with a single default user and a service-layer architecture that keeps database logic separate from pages and API routes.
 
-## 🚀 Quick Start Guide
+## Quick Start
 
-### 1. Prerequisites
-- Node.js 18+ (The project currently runs on Node 18.20.8)
-- npm or yarn
+### Prerequisites
 
-### 2. Installation
+- Node.js 18+; the project has been run with Node 18.20.8.
+- npm.
+- A PostgreSQL database URL in `DATABASE_URL`.
+
+### Installation
+
 ```bash
-git clone <your-repo-url>
-cd education-dashboard
 npm install
 ```
 
-### 3. Database Setup
-The project uses Prisma ORM with SQLite for the MVP.
+### Database Setup
+
+The Prisma schema uses PostgreSQL. The old `prisma/dev.db` SQLite file is a legacy artifact and is not the active datasource.
+
 ```bash
-# Generate Prisma Client
 npx prisma generate
-
-# Create the database and run migrations
-npx prisma migrate dev --name init
-
-# Seed the database with realistic scholarship data
+npx prisma migrate dev
 npx prisma db seed
 ```
 
-### 4. Run Development Server
+### Development
+
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to see the results.
 
----
+Open http://localhost:3000.
 
-## 🏗️ System Architecture
+## Tech Stack
 
-ScholarHub follows a modular **Service-Layer Architecture** integrated within the Next.js App Router framework.
+- **Framework:** Next.js 14 App Router with React 18 and TypeScript.
+- **Styling:** Tailwind CSS 3 with a light slate/indigo dashboard visual system.
+- **Database:** PostgreSQL through Prisma ORM 6.
+- **Icons:** `lucide-react`.
+- **Utilities:** `clsx`, `tailwind-merge`, and `date-fns`.
+- **Package manager:** npm with `package-lock.json`.
 
-- **Frontend:** Next.js 14, React 18, and custom CSS variables for a premium dark-mode design system.
-- **Service Layer:** Decoupled business logic in `src/services` to ensure easy maintenance and future integration of scrapers/external APIs.
-- **Data Access Layer:** Prisma ORM for type-safe database queries.
-- **State Management:** React hooks and Server Actions/Components for data fetching.
+## Architecture
 
----
+ScholarHub follows a service-layer pattern inside the Next.js App Router:
 
-## 📂 Project Structure
+- **Routes and pages** in `src/app` render UI and expose API endpoints.
+- **Services** in `src/services` hold reusable business/data-access workflows.
+- **Prisma** in `src/lib/db.ts` is exposed through a singleton client to avoid duplicate clients during local hot reload.
+- **Shared constants and formatting helpers** live in `src/lib/utils.ts`.
+- **Database models and seed data** live in `prisma/`.
+
+Most read-heavy pages use server components where possible, while interactive catalog, tracker, admin, and tracking controls use client components that call the API routes.
+
+## Project Structure
 
 ```text
-├── prisma/                 # Database schema and seed scripts
-│   ├── schema.prisma       # Database model definitions
-│   └── seed.ts             # Realistic sample data (10+ scholarships)
+.
+├── prisma/
+│   ├── schema.prisma          # PostgreSQL Prisma models
+│   ├── seed.ts                # Seed data for scholarships, universities, links, users
+│   └── migrations/            # Prisma migration history
 ├── src/
-│   ├── app/                # Next.js App Router (Pages & API Routes)
-│   │   ├── api/            # RESTful API Endpoints
-│   │   ├── scholarships/   # Scholarship Catalog & Details
-│   │   ├── tracker/        # Application Progress Tracking
-│   │   └── admin/          # Management Dashboard
-│   ├── components/         # Reusable UI components (Sidebar, etc.)
-│   ├── lib/                # Shared utilities and DB singleton
-│   ├── services/           # Core Business Logic (The "Service Layer")
-│   └── styles/             # Global CSS & Design Tokens
-└── public/                 # Static assets and images
+│   ├── app/
+│   │   ├── api/               # JSON API routes for scholarships, universities, applications
+│   │   ├── admin/             # Scholarship management page
+│   │   ├── scholarships/      # Catalog, detail page, track button
+│   │   ├── tracker/           # Application progress tracker
+│   │   ├── universities/      # University list and detail pages
+│   │   ├── layout.tsx         # Root layout and navbar shell
+│   │   ├── page.tsx           # Dashboard overview
+│   │   └── globals.css        # Tailwind directives and base colors
+│   ├── components/
+│   │   └── Navbar.tsx         # Top navigation
+│   ├── lib/
+│   │   ├── db.ts              # Prisma singleton
+│   │   └── utils.ts           # Class merging, dates, labels, status constants
+│   └── services/
+│       ├── applications.ts    # Tracking, status, checklist, application stats
+│       ├── scholarships.ts    # Catalog filters, CRUD, stats, deadlines
+│       ├── universities.ts    # University CRUD and scholarship joins
+│       └── integrations/      # Future scraper/API integration types
+├── design.md                  # Current UI style guide
+├── DEPLOYMENT.md              # Deployment notes
+└── .agents/rules/             # Universal AI-agent rules for this project
 ```
 
-### Folder Breakdown
-- **`src/app/api`**: Handles CRUD for Scholarships, Universities, and User Applications.
-- **`src/services`**: Contains logic for data filtering, statistics calculation, and application status management. This layer is designed to be "scraper-ready."
-- **`src/lib/db.ts`**: Ensures a singleton instance of the Prisma client to prevent connection pooling issues.
-- **`src/app/globals.css`**: Defines the "ScholarHub Design System" using CSS variables for colors, spacing, and animations.
+## Key Features
 
----
+- **Dashboard overview:** Counts open, upcoming, and closed scholarships; shows upcoming deadlines, tracked applications, and recently added scholarships.
+- **Scholarship catalog:** Client-side filter UI backed by `/api/scholarships` for status, provider type, degree level, funding type, search, and sort.
+- **Scholarship details:** Server-rendered detail pages with timeline, resources, related universities, key info, and a track-status control.
+- **Application tracker:** Single-user MVP tracker for statuses, checklists, progress percentages, notes, deadlines, and deletion.
+- **University browser:** Searchable university list and university detail pages linked to scholarship records.
+- **Admin scholarship management:** Client-side page for creating and deleting scholarships through API routes.
+- **REST-like API routes:** Scholarship, university, and application CRUD endpoints plus query-param actions for stats/deadlines.
 
-## 🛠️ Key Functionalities
+## Data Model
 
-1.  **Scholarship Catalog:** Advanced filtering (Status, Funding, Degree Level) and real-time search.
-2.  **Deadline Monitor:** Automatic calculation of days remaining with color-coded urgency alerts.
-3.  **Application Tracker:** Users can track status (Interested, Applied, etc.) and manage dynamic 5-step checklists.
-4.  **University Browser:** Aggregated view of global universities linked to Indonesian scholarships.
-5.  **Admin Portal:** Internal tools for manually adding or updating scholarship entries.
+The core Prisma models are:
 
----
+- `Scholarship`: Main scholarship entity with slug, provider/funding/degree/status fields, dates, links, related universities, and default checklist JSON stored as text.
+- `ScholarshipDate`: Timeline milestones for a scholarship.
+- `ScholarshipLink`: Resource links such as official pages, guides, forums, videos, documents, and social media.
+- `University` and `UniversityLink`: University records and external links.
+- `ScholarshipUniversity`: Join table between scholarships and universities.
+- `UserProfile`: MVP user profile data.
+- `UserApplication`: A user scholarship tracking record with status, notes, applied timestamp, and checklist JSON stored as text.
 
-## 📈 Roadmap
-- [ ] Integration with Google Calendar API for deadline notifications.
-- [ ] Automated web scrapers for LPDP and Chevening sites.
-- [ ] User authentication via NextAuth.
-- [ ] Migration to PostgreSQL for production scaling.
+## Design Style
+
+The current UI follows the style documented in `design.md`:
+
+- Light mode with `slate-50` page backgrounds, white cards, `slate-200` borders, and `slate-900` text.
+- Indigo is the primary accent for brand, icons, focus rings, and primary actions.
+- Semantic badge colors: emerald for open/accepted, blue for upcoming/applied, amber for warning/preparing, red for closed/rejected, slate for neutral states.
+- Layouts use `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8`.
+- Cards usually use `bg-white rounded-xl border border-slate-200 p-5 shadow-sm`.
+- Icons come from `lucide-react`; header icons are generally `w-7 h-7 text-indigo-500`.
+
+## Supporting Files
+
+- `design.md`: Source of truth for UI style, spacing, component conventions, badges, buttons, and icon usage.
+- `DEPLOYMENT.md`: Deployment-oriented setup notes.
+- `tailwind.config.js`: Tailwind content configuration for `src/**/*`.
+- `eslint.config.mjs`: ESLint setup.
+- `next.config.mjs`: Next.js configuration.
+- `postcss.config.js`: Tailwind/PostCSS integration.
+- `.agents/rules/scholarhub-project.md`: Project-specific AI-agent coding rules.
+- `.agents/rules/pr-generator-rule.mdc`: PR-summary helper rule for staged or full git diffs.
+- `.agents/rules/write-changelog.mdc`: Changelog writer rule for release notes from git diffs.
+
+## Important Implementation Notes
+
+- `DEFAULT_USER_ID` is currently hardcoded as `default-user` in application routes and server pages. Do not assume multi-user auth exists yet.
+- Checklist fields are stored as JSON strings in Prisma text columns. API routes stringify checklist arrays before persistence.
+- Date values such as `openDate`, `closeDate`, and `ScholarshipDate.dateValue` are stored as strings in `YYYY-MM-DD` style and formatted in the UI.
+- `src/lib/utils.ts` is the canonical place for status arrays, labels, badge mappings, date helpers, and slug generation.
+- Use the service layer for Prisma access rather than querying Prisma directly from client components.
+
+## Roadmap
+
+- Add authentication and replace the hardcoded default user.
+- Add Google Calendar or notification integration for deadlines.
+- Add scraper/API integrations for scholarship providers.
+- Expand admin editing beyond create/delete.
+- Add validation and stronger typed request payloads for API routes.
