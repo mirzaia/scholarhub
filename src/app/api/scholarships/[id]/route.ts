@@ -7,9 +7,10 @@ import {
 
 export async function GET(
     _request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const scholarship = await getScholarshipById(params.id);
+    const { id } = await params;
+    const scholarship = await getScholarshipById(id);
     if (!scholarship) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -18,11 +19,12 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const body = await request.json();
-        const scholarship = await updateScholarship(params.id, body);
+        const scholarship = await updateScholarship(id, body);
         return NextResponse.json(scholarship);
     } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to update";
@@ -32,10 +34,11 @@ export async function PATCH(
 
 export async function DELETE(
     _request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await deleteScholarship(params.id);
+        const { id } = await params;
+        await deleteScholarship(id);
         return NextResponse.json({ success: true });
     } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to delete";

@@ -8,9 +8,10 @@ export const dynamic = "force-dynamic";
 export default async function UniversityDetailPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
-    const university = await getUniversityById(params.id);
+    const { id } = await params;
+    const university = await getUniversityById(id);
 
     if (!university) return notFound();
 
