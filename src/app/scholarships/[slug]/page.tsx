@@ -20,9 +20,10 @@ const LINK_ICONS: Record<string, React.ReactNode> = {
 export default async function ScholarshipDetailPage({
     params,
 }: {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 }) {
-    const scholarship = await getScholarshipBySlug(params.slug);
+    const { slug } = await params;
+    const scholarship = await getScholarshipBySlug(slug);
 
     if (!scholarship) return notFound();
 

@@ -13,8 +13,8 @@ We recommend using one of these free, highly reliable database hosts:
 ### Instructions for Neon:
 1. Go to [Neon](https://neon.tech/) and sign up.
 2. Create a new Project.
-3. On the dashboard, find your **Connection String** (it will look like `postgres://user:password@endpoint.neon.tech/dbname?sslmode=require`).
-4. Copy this URL.
+3. On the dashboard, find your **Connection String**. It looks like a Postgres URI with your Neon user, password, host, and database name (for example: `postgresql://<user>:<password>@<host>/<dbname>?sslmode=require`).
+4. Copy this URL into a secret store or local `.env` — never commit real credentials.
 
 ## 🟢 Step 2: Update Your Code for Postgres
 
@@ -30,9 +30,9 @@ datasource db {
 }
 ```
 
-3. Open your `.env` file and update the `DATABASE_URL` with the one you got from Neon/Supabase:
+3. Open your `.env` file and update the `DATABASE_URL` with the one you got from Neon/Supabase (keep `.env` gitignored):
 ```env
-DATABASE_URL="postgres://user:password@endpoint.neon.tech/dbname?sslmode=require"
+DATABASE_URL="postgresql://<user>:<password>@<host>/<dbname>?sslmode=require"
 ```
 
 4. Run the following commands to initialize the new remote database and seed your data:
