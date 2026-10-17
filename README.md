@@ -1,150 +1,133 @@
-# ScholarHub - Scholarship Monitoring Dashboard
+# ScholarHub - Master's Scholarship Monitoring Dashboard
 
-ScholarHub is a Next.js dashboard for Indonesian students to discover scholarships, monitor deadlines, browse related universities, and track personal application progress. The app is currently built as an MVP with a single default user and a service-layer architecture that keeps database logic separate from pages and API routes.
+ScholarHub is a high-density, **Grafana-inspired dark dashboard** for Indonesian students to discover Master's degree scholarships, monitor intake deadlines, verify GPA/LoA/English eligibility criteria, browse partner universities, and track personal application milestones with a Kanban board and document link repository.
+
+---
+
+## Key Features
+
+- **Grafana Dark Dashboard Interface**: Technical, high-density monitoring aesthetic with low eye-strain dark theme (`#111217` canvas, `#181b1f` panels, orange gradient accents, LCD progress bars, and monospace metrics).
+- **Indonesian Master's Degree Catalog**: Curated for Indonesian applicants targeting top international and domestic postgraduate funding schemes (LPDP Beasiswa Reguler, LPDP PTUD, Chevening UK, Australia Awards, DAAD Germany, Erasmus Mundus, MEXT Japan, GKS Korea, Turkiye Burslari, Fulbright, and more).
+- **Eligibility Criteria Matrix**: Real-time filtering and detail verification for:
+  - Undergraduate GPA (IPK S1 minimums)
+  - English proficiency requirements (IELTS, TOEFL iBT, Duolingo, PTE)
+  - Letter of Acceptance (LoA) requirements (*Mandatory Unconditional* vs *Optional*)
+  - Age limits & required work experience
+  - Full funding vs partial coverage summaries
+- **Application Tracker (Dual Mode)**:
+  - **Kanban Board**: Drag/advance cards across `Interested`, `Preparing`, `Applied`, `Accepted`, `Rejected` columns.
+  - **Detailed List View**: Interactive task checklist with completion progress bar.
+  - **Document & Essay Repository**: Save and launch Google Docs links for Statements of Purpose, CV/Resume drive links, and interview notes per application.
+- **Calendar Deadline Sync**:
+  - One-click **Add to Google Calendar** with prefilled event details, link, and reminders.
+  - Downloadable **iCalendar (.ics)** file for Apple Calendar, Microsoft Outlook, and mobile devices.
+- **University Directory**: Explore destination universities mapped directly to scholarship eligibility (e.g., LPDP PTUD Top 25 universities).
+- **Cloud & Container Portability**: Ready for instant serverless deployment on Vercel or multi-stage standalone containerization via Docker.
+
+---
 
 ## Quick Start
 
 ### Prerequisites
+- Node.js 18+ (tested on Node 20+)
+- npm
+- PostgreSQL database URL (Neon Serverless Postgres recommended)
 
-- Node.js 18+; the project has been run with Node 18.20.8.
-- npm.
-- A PostgreSQL database URL in `DATABASE_URL`.
-
-### Installation
-
+### 1. Installation
 ```bash
 npm install
 ```
 
-### Database Setup
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```env
+DATABASE_URL="postgresql://user:password@host/scholarhub?sslmode=require"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-The Prisma schema uses PostgreSQL. The old `prisma/dev.db` SQLite file is a legacy artifact and is not the active datasource.
-
+### 3. Database Migration & Seeding
 ```bash
-npx prisma generate
-npx prisma migrate dev
+# Push schema changes to PostgreSQL
+npx prisma db push
+
+# Seed realistic 2026 scholarship and university data
 npx prisma db seed
 ```
 
-### Development
-
+### 4. Development Server
 ```bash
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Open http://localhost:3000.
+---
 
-## Tech Stack
+## Docker Containerization
 
-- **Framework:** Next.js 14 App Router with React 18 and TypeScript.
-- **Styling:** Tailwind CSS 3 with a light slate/indigo dashboard visual system.
-- **Database:** PostgreSQL through Prisma ORM 6.
-- **Icons:** `lucide-react`.
-- **Utilities:** `clsx`, `tailwind-merge`, and `date-fns`.
-- **Package manager:** npm with `package-lock.json`.
+ScholarHub includes a multi-stage production `Dockerfile` and a `docker-compose.yml` for local offline development or VPS deployment.
 
-## Architecture
+### Run with Docker Compose (App + Local PostgreSQL 16)
+```bash
+# 1. Start containers
+docker compose up -d
 
-ScholarHub follows a service-layer pattern inside the Next.js App Router:
+# 2. Push schema and seed database inside container
+docker compose exec app npx prisma db push
+docker compose exec app npx prisma db seed
 
-- **Routes and pages** in `src/app` render UI and expose API endpoints.
-- **Services** in `src/services` hold reusable business/data-access workflows.
-- **Prisma** in `src/lib/db.ts` is exposed through a singleton client to avoid duplicate clients during local hot reload.
-- **Shared constants and formatting helpers** live in `src/lib/utils.ts`.
-- **Database models and seed data** live in `prisma/`.
+# 3. Open in browser
+open http://localhost:3000
+```
 
-Most read-heavy pages use server components where possible, while interactive catalog, tracker, admin, and tracking controls use client components that call the API routes.
+### Build Standalone Image
+```bash
+docker build -t scholarhub:latest .
+```
 
-## Project Structure
+For deployment comparisons and tradeoffs (Vercel vs. Docker), refer to [DEPLOYMENT.md](file:///Users/mirzaaziz/workspace/scholarhub/DEPLOYMENT.md).
 
+---
+
+## Tech Stack & Architecture
+
+- **Framework**: Next.js 15 (App Router with Server Components and Client Islands)
+- **Styling**: Tailwind CSS v3 with custom Grafana palette tokens
+- **Database / ORM**: PostgreSQL via Prisma ORM v6
+- **UI Components & Icons**: `lucide-react`
+- **Output Mode**: `standalone` for minimal Docker footprint (<150MB)
+- **Linting**: ESLint 9 with `@eslint/eslintrc` FlatCompat
+
+### Directory Layout
 ```text
 .
 ├── prisma/
 │   ├── schema.prisma          # PostgreSQL Prisma models
-│   ├── seed.ts                # Seed data for scholarships, universities, links, users
-│   └── migrations/            # Prisma migration history
+│   └── seed.ts                # 2026 Seed data (22 scholarships, 15 universities)
 ├── src/
 │   ├── app/
-│   │   ├── api/               # JSON API routes for scholarships, universities, applications
-│   │   ├── admin/             # Scholarship management page
-│   │   ├── scholarships/      # Catalog, detail page, track button
-│   │   ├── tracker/           # Application progress tracker
-│   │   ├── universities/      # University list and detail pages
-│   │   ├── layout.tsx         # Root layout and navbar shell
-│   │   ├── page.tsx           # Dashboard overview
-│   │   └── globals.css        # Tailwind directives and base colors
+│   │   ├── api/               # JSON REST API routes (scholarships, universities, applications)
+│   │   ├── admin/             # Scholarship administration page
+│   │   ├── scholarships/      # Catalog, detail page, track button, calendar export
+│   │   ├── tracker/           # Dual-mode Kanban & List application tracker
+│   │   ├── universities/      # University browser and detail pages
+│   │   ├── layout.tsx         # Root dark layout with DashboardShell
+│   │   ├── page.tsx           # Dashboard overview metrics & deadline table
+│   │   └── globals.css        # Grafana dark theme variables & utility classes
 │   ├── components/
-│   │   └── Navbar.tsx         # Top navigation
+│   │   └── DashboardShell.tsx # Collapsible navigation sidebar & top breadcrumb bar
 │   ├── lib/
-│   │   ├── db.ts              # Prisma singleton
-│   │   └── utils.ts           # Class merging, dates, labels, status constants
+│   │   ├── db.ts              # Prisma singleton client
+│   │   └── utils.ts           # Status styles, calendar .ics/Google Cal helpers, date utils
 │   └── services/
-│       ├── applications.ts    # Tracking, status, checklist, application stats
-│       ├── scholarships.ts    # Catalog filters, CRUD, stats, deadlines
-│       ├── universities.ts    # University CRUD and scholarship joins
-│       └── integrations/      # Future scraper/API integration types
-├── design.md                  # Current UI style guide
-├── DEPLOYMENT.md              # Deployment notes
-└── .agents/rules/             # Universal AI-agent rules for this project
+│       ├── applications.ts    # Application tracker CRUD, checklist, document links
+│       ├── scholarships.ts    # Scholarship filtering, GPA/LoA criteria, mutations
+│       └── universities.ts    # University querying and scholarship joins
+├── design.md                  # Grafana dark design system documentation
+├── DEPLOYMENT.md              # Vercel vs Docker comparative deployment guide
+└── Dockerfile                 # Multi-stage production Dockerfile
 ```
 
-## Key Features
+---
 
-- **Dashboard overview:** Counts open, upcoming, and closed scholarships; shows upcoming deadlines, tracked applications, and recently added scholarships.
-- **Scholarship catalog:** Client-side filter UI backed by `/api/scholarships` for status, provider type, degree level, funding type, search, and sort.
-- **Scholarship details:** Server-rendered detail pages with timeline, resources, related universities, key info, and a track-status control.
-- **Application tracker:** Single-user MVP tracker for statuses, checklists, progress percentages, notes, deadlines, and deletion.
-- **University browser:** Searchable university list and university detail pages linked to scholarship records.
-- **Admin scholarship management:** Client-side page for creating and deleting scholarships through API routes.
-- **REST-like API routes:** Scholarship, university, and application CRUD endpoints plus query-param actions for stats/deadlines.
-
-## Data Model
-
-The core Prisma models are:
-
-- `Scholarship`: Main scholarship entity with slug, provider/funding/degree/status fields, dates, links, related universities, and default checklist JSON stored as text.
-- `ScholarshipDate`: Timeline milestones for a scholarship.
-- `ScholarshipLink`: Resource links such as official pages, guides, forums, videos, documents, and social media.
-- `University` and `UniversityLink`: University records and external links.
-- `ScholarshipUniversity`: Join table between scholarships and universities.
-- `UserProfile`: MVP user profile data.
-- `UserApplication`: A user scholarship tracking record with status, notes, applied timestamp, and checklist JSON stored as text.
-
-## Design Style
-
-The current UI follows the style documented in `design.md`:
-
-- Light mode with `slate-50` page backgrounds, white cards, `slate-200` borders, and `slate-900` text.
-- Indigo is the primary accent for brand, icons, focus rings, and primary actions.
-- Semantic badge colors: emerald for open/accepted, blue for upcoming/applied, amber for warning/preparing, red for closed/rejected, slate for neutral states.
-- Layouts use `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8`.
-- Cards usually use `bg-white rounded-xl border border-slate-200 p-5 shadow-sm`.
-- Icons come from `lucide-react`; header icons are generally `w-7 h-7 text-indigo-500`.
-
-## Supporting Files
-
-- `design.md`: Source of truth for UI style, spacing, component conventions, badges, buttons, and icon usage.
-- `DEPLOYMENT.md`: Deployment-oriented setup notes.
-- `tailwind.config.js`: Tailwind content configuration for `src/**/*`.
-- `eslint.config.mjs`: ESLint setup.
-- `next.config.mjs`: Next.js configuration.
-- `postcss.config.js`: Tailwind/PostCSS integration.
-- `.agents/rules/scholarhub-project.md`: Project-specific AI-agent coding rules.
-- `.agents/rules/pr-generator-rule.mdc`: PR-summary helper rule for staged or full git diffs.
-- `.agents/rules/write-changelog.mdc`: Changelog writer rule for release notes from git diffs.
-
-## Important Implementation Notes
-
-- `DEFAULT_USER_ID` is currently hardcoded as `default-user` in application routes and server pages. Do not assume multi-user auth exists yet.
-- Checklist fields are stored as JSON strings in Prisma text columns. API routes stringify checklist arrays before persistence.
-- Date values such as `openDate`, `closeDate`, and `ScholarshipDate.dateValue` are stored as strings in `YYYY-MM-DD` style and formatted in the UI.
-- `src/lib/utils.ts` is the canonical place for status arrays, labels, badge mappings, date helpers, and slug generation.
-- Use the service layer for Prisma access rather than querying Prisma directly from client components.
-
-## Roadmap
-
-- Add authentication and replace the hardcoded default user.
-- Add Google Calendar or notification integration for deadlines.
-- Add scraper/API integrations for scholarship providers.
-- Expand admin editing beyond create/delete.
-- Add validation and stronger typed request payloads for API routes.
+## License
+MIT

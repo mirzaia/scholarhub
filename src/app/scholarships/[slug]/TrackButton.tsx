@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { APPLICATION_STATUSES } from "@/lib/utils";
-import { Bookmark, ChevronDown } from "lucide-react";
+import { APPLICATION_STATUSES, APPLICATION_STATUS_COLORS, ApplicationStatus } from "@/lib/utils";
+import { Bookmark, ChevronDown, Check, Loader2 } from "lucide-react";
 
 interface TrackButtonProps {
     scholarshipId: string;
@@ -16,7 +16,7 @@ export default function TrackButton({
     existingStatus,
     existingId,
 }: TrackButtonProps) {
-    const [status, setStatus] = useState(existingStatus || "");
+    const [status, setStatus] = useState<string>(existingStatus || "");
     const [saving, setSaving] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const router = useRouter();
@@ -47,47 +47,68 @@ export default function TrackButton({
         setSaving(false);
     };
 
-    if (saving) {
-        return (
-            <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-400 cursor-not-allowed" disabled>
-                Saving...
-            </button>
-        );
-    }
+    const currentStyle = status && APPLICATION_STATUS_COLORS[status as ApplicationStatus]
+        ? APPLICATION_STATUS_COLORS[status as ApplicationStatus]
+        : null;
 
     return (
-        <div className="relative">
+        <div className="relative inline-block">
             <button
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm ${
-                    status
-                        ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                }`}
+                type="button"
+                disabled={saving}
                 onClick={() => setShowDropdown(!showDropdown)}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded text-xs font-semibold transition-all border ${
+                    status
+                        ? `${currentStyle?.bg} ${currentStyle?.text} ${currentStyle?.border} hover:brightness-110 shadow-sm`
+                        : "bg-[#22252b] hover:bg-[#2c3235] text-[#ccccdc] hover:text-[#e6e6f0] border-[rgba(204,204,220,0.18)]"
+                }`}
             >
-                <Bookmark className="w-4 h-4" />
-                {status ? (
-                    <>{status.replace("_", " ")} <ChevronDown className="w-3.5 h-3.5" /></>
+                {saving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#ff8833]" />
                 ) : (
-                    <>Track This Scholarship</>
+                    <Bookmark className={`w-3.5 h-3.5 ${status ? "fill-current" : ""}`} />
                 )}
+                <span>
+                    {status ? status.replace("_", " ").toUpperCase() : "Track in Tracker"}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
             </button>
+
             {showDropdown && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-lg py-1 z-50 min-w-[180px] shadow-lg">
-                    {APPLICATION_STATUSES.map((s) => (
-                        <button
-                            key={s}
-                            onClick={() => handleTrack(s)}
-                            className={`block w-full px-4 py-2 text-left text-sm capitalize transition-colors ${
-                                s === status
-                                    ? 'bg-indigo-50 text-indigo-700 font-medium'
-                                    : 'text-slate-700 hover:bg-slate-50'
-                            }`}
-                        >
-                            {s.replace("_", " ")}
-                        </button>
-                    ))}
-                </div>
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowDropdown(false)}
+                    />
+                    <div className="absolute top-full right-0 mt-1.5 bg-[#181b1f] border border-[rgba(204,204,220,0.18)] rounded-md py-1.5 z-50 min-w-[200px] shadow-2xl backdrop-blur-md">
+                        <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-[rgba(204,204,220,0.5)] border-b border-[rgba(204,204,220,0.08)] mb-1">
+                            Select Status
+                        </div>
+                        {APPLICATION_STATUSES.map((s) => {
+                            const isSelected = s === status;
+                            const style = APPLICATION_STATUS_COLORS[s];
+                            return (
+                                <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => handleTrack(s)}
+                                    className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-left transition-colors ${
+                                        isSelected
+                                            ? "bg-[#22252b] text-[#e6e6f0] font-medium"
+                                            : "text-[rgba(204,204,220,0.78)] hover:bg-[#22252b] hover:text-[#e6e6f0]"
+                                    }`}
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <span className={`w-2 h-2 rounded-full ${style.dot}`} />
+                                        <span className="capitalize">{s.replace("_", " ")}</span>
+                                    </span>
+                                    {isSelected && <Check className="w-3.5 h-3.5 text-[#ff8833]" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </>
             )}
         </div>
     );

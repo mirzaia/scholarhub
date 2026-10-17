@@ -34,13 +34,14 @@ globs: **/*
 
 ## UI And Design
 
-- Follow the light slate/indigo dashboard style from `design.md`.
-- Use Tailwind utility classes for styling; avoid adding custom CSS unless there is a clear reusable need.
-- Standard page shell: `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8`.
-- Standard cards: `bg-white rounded-xl border border-slate-200 shadow-sm`.
+- Follow the Grafana dark dashboard style from `design.md` (`#111217` canvas, `#181b1f` panel, `#22252b` elevated).
+- Use Tailwind utility classes for styling with Grafana design tokens.
+- Standard page shell: `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6`.
+- Standard panels: `bg-[#181b1f] border border-[rgba(204,204,220,0.12)] rounded-lg p-5`.
+- Standard metric tiles: `bg-[#22252b] border border-[rgba(204,204,220,0.08)] rounded p-3.5`.
 - Use `lucide-react` for icons.
-- Use indigo for primary actions and brand accents, slate for neutral surfaces/text, and semantic colors for statuses.
-- Keep UI readable, spacious, and consistent with the current dashboard aesthetic rather than introducing unrelated visual themes.
+- Use Grafana orange (`#ff8833` / `linear-gradient(#ff8833, #f55f3e)`) for brand accents and active indicators, and semantic colors for statuses (Emerald for Open/Accepted, Blue for Upcoming/Applied, Yellow for Preparing, Red for Urgent/Rejected).
+- Keep UI high-density, technical, readable, and consistent with the Grafana monitoring dashboard aesthetic.
 
 ## Feature Conventions
 

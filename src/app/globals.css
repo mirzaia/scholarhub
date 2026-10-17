@@ -3,12 +3,154 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  color-scheme: dark;
+  --canvas: #111217;
+  --panel: #181b1f;
+  --elevated: #22252b;
+  --input: #111217;
+  --border-weak: rgba(204, 204, 220, 0.07);
+  --border-medium: rgba(204, 204, 220, 0.15);
+  --border-strong: rgba(204, 204, 220, 0.25);
+  --text: #ccccdc;
+  --text-strong: #e6e6f0;
+  --text-secondary: rgba(204, 204, 220, 0.78);
+  --text-muted: rgba(204, 204, 220, 0.62);
+  --primary: #3d71d9;
+  --primary-text: #6e9fff;
+  --hover: rgba(204, 204, 220, 0.06);
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --critical-text: #ff7383;
+  --destructive: #c4314b;
+  --radius: 4px;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--canvas);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-text);
+  outline-offset: 1px;
+}
+
+/* Custom subtle dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #111217;
+}
+::-webkit-scrollbar-thumb {
+  background: #2c3036;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3d424b;
+}
+
+/* Grafana Variable / Filter Bar patterns */
+.g-var {
+  display: inline-flex;
+  align-items: stretch;
+  height: 34px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--input);
+}
+
+.g-var-label {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background: var(--panel);
+  border-right: 1px solid var(--border-medium);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary-text);
+  white-space: nowrap;
+}
+
+.g-var select,
+.g-var input {
+  background: var(--input);
+  border: 0;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--text-strong);
+  outline: none;
+}
+
+.g-var select option {
+  background: var(--elevated);
+  color: var(--text-strong);
+}
+
+/* Grafana Panel */
+.g-panel {
+  background: var(--panel);
+  border: 1px solid var(--border-weak);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.g-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px 0 14px;
+  border-bottom: 1px solid var(--border-weak);
+}
+
+.g-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Grafana Table */
+table.g-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+table.g-table th {
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+  text-align: left;
+  font-weight: 500;
+  color: var(--primary-text);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-medium);
+  white-space: nowrap;
+  font-size: 13px;
+}
+table.g-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-weak);
+  vertical-align: middle;
+}
+table.g-table tr:hover td {
+  background: var(--hover);
 }

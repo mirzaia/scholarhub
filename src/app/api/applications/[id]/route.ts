@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-    updateApplicationStatus,
-    updateApplicationChecklist,
+    updateApplication,
     deleteApplication,
 } from "@/services/applications";
 
@@ -13,12 +12,24 @@ export async function PATCH(
         const { id } = await params;
         const body = await request.json();
 
+        let checklistStr: string | undefined = undefined;
         if (body.checklist !== undefined) {
-            const app = await updateApplicationChecklist(id, JSON.stringify(body.checklist));
-            return NextResponse.json(app);
+            checklistStr = typeof body.checklist === "string" ? body.checklist : JSON.stringify(body.checklist);
         }
 
-        const app = await updateApplicationStatus(id, body.status, body.notes);
+        let documentLinksStr: string | undefined = undefined;
+        if (body.documentLinks !== undefined) {
+            documentLinksStr = typeof body.documentLinks === "string" ? body.documentLinks : JSON.stringify(body.documentLinks);
+        }
+
+        const app = await updateApplication(id, {
+            status: body.status,
+            currentStage: body.currentStage,
+            notes: body.notes,
+            checklist: checklistStr,
+            documentLinks: documentLinksStr,
+        });
+
         return NextResponse.json(app);
     } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to update";

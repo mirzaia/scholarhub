@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/Navbar";
+import { DashboardShell } from "@/components/DashboardShell";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "ScholarHub — Scholarship Monitoring Dashboard",
   description:
-    "Track and monitor scholarships for Indonesian students. Browse scholarships, manage applications, and never miss a deadline.",
+    "Track and monitor master's and graduate scholarships for Indonesian students. LPDP, Chevening, AAS, DAAD, and more.",
 };
 
 export default function RootLayout({
@@ -17,12 +20,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div className="min-h-screen bg-slate-50">
-          <Navbar />
-          {children}
-        </div>
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} font-sans bg-[#111217] text-[#ccccdc] antialiased`}>
+        <DashboardShell>{children}</DashboardShell>
       </body>
     </html>
   );
