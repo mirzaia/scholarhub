@@ -53,31 +53,49 @@ export async function trackScholarship(
     });
 }
 
+export interface UpdateApplicationInput {
+    status?: string;
+    currentStage?: string;
+    notes?: string;
+    checklist?: string;
+    documentLinks?: string;
+}
+
+export async function updateApplication(id: string, input: UpdateApplicationInput) {
+    const data: Record<string, unknown> = {};
+    if (input.status !== undefined) {
+        data.status = input.status;
+        if (input.status === "applied") data.appliedAt = new Date();
+    }
+    if (input.currentStage !== undefined) data.currentStage = input.currentStage;
+    if (input.notes !== undefined) data.notes = input.notes;
+    if (input.checklist !== undefined) data.checklist = input.checklist;
+    if (input.documentLinks !== undefined) data.documentLinks = input.documentLinks;
+
+    return prisma.userApplication.update({
+        where: { id },
+        data,
+        include: {
+            scholarship: {
+                include: { links: true },
+            },
+        },
+    });
+}
+
 export async function updateApplicationStatus(
     id: string,
     status: string,
     notes?: string
 ) {
-    const data: Record<string, unknown> = { status };
-    if (notes !== undefined) data.notes = notes;
-    if (status === "applied") data.appliedAt = new Date();
-
-    return prisma.userApplication.update({
-        where: { id },
-        data,
-        include: { scholarship: true },
-    });
+    return updateApplication(id, { status, notes });
 }
 
 export async function updateApplicationChecklist(
     id: string,
     checklist: string
 ) {
-    return prisma.userApplication.update({
-        where: { id },
-        data: { checklist },
-        include: { scholarship: true },
-    });
+    return updateApplication(id, { checklist });
 }
 
 export async function deleteApplication(id: string) {

@@ -16,10 +16,14 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(stats);
     }
     if (action === "deadlines") {
-        const limit = parseInt(searchParams.get("limit") || "5");
+        const parsedLimit = parseInt(searchParams.get("limit") || "5", 10);
+        const limit = isNaN(parsedLimit) || parsedLimit <= 0 ? 5 : parsedLimit;
         const deadlines = await getUpcomingDeadlines(limit);
         return NextResponse.json(deadlines);
     }
+
+    const minGpaParam = searchParams.get("minGpa") || searchParams.get("gpa");
+    const minGpa = minGpaParam ? parseFloat(minGpaParam) : undefined;
 
     const filters = {
         status: searchParams.get("status") || undefined,
@@ -27,6 +31,9 @@ export async function GET(request: NextRequest) {
         degreeLevel: searchParams.get("degreeLevel") || undefined,
         fundingType: searchParams.get("fundingType") || undefined,
         country: searchParams.get("country") || undefined,
+        requiresLoa: searchParams.get("requiresLoa") || searchParams.get("loa") || undefined,
+        fieldOfStudy: searchParams.get("fieldOfStudy") || searchParams.get("field") || undefined,
+        minGpa: minGpa && !isNaN(minGpa) ? minGpa : undefined,
         search: searchParams.get("search") || undefined,
         sortBy: (searchParams.get("sortBy") as "deadline" | "newest" | "name") || undefined,
     };

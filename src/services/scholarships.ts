@@ -7,6 +7,9 @@ export interface ScholarshipFilters {
     degreeLevel?: string;
     fundingType?: string;
     country?: string;
+    requiresLoa?: string;
+    fieldOfStudy?: string;
+    minGpa?: number;
     search?: string;
     sortBy?: "deadline" | "newest" | "name";
 }
@@ -19,11 +22,22 @@ export async function getScholarships(filters: ScholarshipFilters = {}) {
     if (filters.degreeLevel) where.degreeLevel = filters.degreeLevel;
     if (filters.fundingType) where.fundingType = filters.fundingType;
     if (filters.country) where.country = filters.country;
+    if (filters.requiresLoa) where.requiresLoa = filters.requiresLoa;
+    if (filters.fieldOfStudy && filters.fieldOfStudy !== "Any") {
+        where.fieldOfStudy = { contains: filters.fieldOfStudy };
+    }
+    if (filters.minGpa !== undefined && !isNaN(filters.minGpa)) {
+        where.OR = [
+            { gpaMin: null },
+            { gpaMin: { lte: filters.minGpa } },
+        ];
+    }
     if (filters.search) {
         where.OR = [
             { name: { contains: filters.search } },
             { description: { contains: filters.search } },
             { country: { contains: filters.search } },
+            { coverageSummary: { contains: filters.search } },
         ];
     }
 
@@ -77,6 +91,13 @@ export interface CreateScholarshipInput {
     status?: string;
     openDate?: string;
     closeDate?: string;
+    gpaMin?: number;
+    englishRequirement?: string;
+    ageMax?: number;
+    workExpYears?: number;
+    requiresLoa?: string;
+    fieldOfStudy?: string;
+    coverageSummary?: string;
     links?: { label: string; url: string; linkType: string }[];
     dates?: { label: string; dateValue: string; note?: string }[];
     universityIds?: string[];
@@ -98,6 +119,13 @@ export async function createScholarship(input: CreateScholarshipInput) {
             status: input.status || "upcoming",
             openDate: input.openDate,
             closeDate: input.closeDate,
+            gpaMin: input.gpaMin,
+            englishRequirement: input.englishRequirement,
+            ageMax: input.ageMax,
+            workExpYears: input.workExpYears ?? 0,
+            requiresLoa: input.requiresLoa || "optional",
+            fieldOfStudy: input.fieldOfStudy || "Any",
+            coverageSummary: input.coverageSummary,
             links: input.links
                 ? { create: input.links }
                 : undefined,
@@ -138,6 +166,13 @@ export async function updateScholarship(
     if (data.status) updateData.status = data.status;
     if (data.openDate !== undefined) updateData.openDate = data.openDate;
     if (data.closeDate !== undefined) updateData.closeDate = data.closeDate;
+    if (data.gpaMin !== undefined) updateData.gpaMin = data.gpaMin;
+    if (data.englishRequirement !== undefined) updateData.englishRequirement = data.englishRequirement;
+    if (data.ageMax !== undefined) updateData.ageMax = data.ageMax;
+    if (data.workExpYears !== undefined) updateData.workExpYears = data.workExpYears;
+    if (data.requiresLoa !== undefined) updateData.requiresLoa = data.requiresLoa;
+    if (data.fieldOfStudy !== undefined) updateData.fieldOfStudy = data.fieldOfStudy;
+    if (data.coverageSummary !== undefined) updateData.coverageSummary = data.coverageSummary;
 
     return prisma.scholarship.update({
         where: { id },
