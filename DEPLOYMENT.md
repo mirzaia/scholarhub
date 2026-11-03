@@ -41,6 +41,11 @@ DATABASE_URL="postgresql://<user>:<password>@<neon-host>/scholarhub?sslmode=requ
 NEXT_PUBLIC_APP_URL="https://your-domain.vercel.app"
 ```
 
+Store the connection URL in the platform's environment settings or secret manager,
+never in the repository or Docker build arguments. After exposure, rotate the
+database role's password in Neon, update every deployment's `DATABASE_URL`, and
+redeploy. Verify that the previous password no longer authenticates.
+
 > [!IMPORTANT]
 > When using Neon Postgres with Prisma, do **not** append `&channel_binding=require` to `DATABASE_URL`, as Node.js OpenSSL / Prisma engine does not support SCRAM channel binding and will trigger a connection error (`P1001`). Keep `sslmode=require`.
 
@@ -67,6 +72,14 @@ The provided `Dockerfile` leverages Next.js `output: 'standalone'`:
 
 To launch ScholarHub along with a local PostgreSQL 16 database without any external cloud dependencies:
 
+Inject `POSTGRES_PASSWORD` and `DATABASE_URL` through your environment or secret
+manager first. Use a strong, unique password, and set the URL's host to `db:5432`
+with matching credentials and database name (URL-encode the password in the URL).
+`POSTGRES_USER` defaults to `postgres` and `POSTGRES_DB` to `scholarhub`; neither
+secret has a fallback. For an existing data volume, rotate the role's password
+inside PostgreSQL too: changing the container variable does not change stored
+database credentials.
+
 ```bash
 # 1. Start the services in detached mode
 docker compose up -d
@@ -89,10 +102,11 @@ If you wish to run only the application container connected to your remote Neon 
 # Build the standalone container
 docker build -t scholarhub:latest .
 
-# Run container with remote DATABASE_URL
+# Inject DATABASE_URL through your secret manager before running this command.
+# Pass the existing environment variable without embedding it in shell history.
 docker run -d \
   -p 3000:3000 \
-  -e DATABASE_URL="postgresql://<user>:<password>@<neon-host>/scholarhub?sslmode=require" \
+  -e DATABASE_URL \
   -e NEXT_PUBLIC_APP_URL="http://localhost:3000" \
   --name scholarhub-instance \
   scholarhub:latest
