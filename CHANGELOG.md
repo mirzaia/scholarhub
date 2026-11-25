@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-11-03
+
+### Security
+
+- Removed the exposed PostgreSQL credential from the ignored local `.env` file; database access continues to use `DATABASE_URL` from the environment.
+- Removed default Docker Compose passwords and connection credentials; startup now requires `DATABASE_URL` and `POSTGRES_PASSWORD`.
+- Excluded all `.env*` files from Docker builds and added a credential-free `.env.example` for setup.
+- Documented the remaining manual password rotation, deployment updates, and verification steps in `SECRET_ROTATION.md`. Provider-side rotation is still required.
+
 ## [0.2.0] - 2026-08-08
 
 ### Changed

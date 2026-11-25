@@ -39,11 +39,27 @@ npm install
 ```
 
 ### 2. Configure Environment Variables
-Copy `.env.example` to `.env`:
-```env
-DATABASE_URL="postgresql://user:password@host/scholarhub?sslmode=require"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+Copy the credential-free template for local settings:
+```bash
+cp .env.example .env
+chmod 600 .env
 ```
+
+Inject `DATABASE_URL` into the process environment through your secret manager or
+deployment platform. It must contain the PostgreSQL connection URL, including the
+database user's credentials and the provider's TLS settings. Prisma and Next.js
+already read this environment variable. Leave the credential entries in `.env`
+empty when injecting them externally. Never commit a populated environment file.
+
+If a database credential has been exposed, reset the affected role's password in
+the database provider's console, replace `DATABASE_URL` in every deployment and
+local secret store, and restart affected applications. Verify the old credential
+no longer authenticates. Removing it from a file does not revoke it. For an
+existing Docker database, change the role's password in PostgreSQL as well;
+changing `POSTGRES_PASSWORD` alone does not update an initialized data volume.
+
+Follow [the manual credential rotation guide](SECRET_ROTATION.md) to complete
+the remaining provider and deployment actions for this incident.
 
 ### 3. Database Migration & Seeding
 ```bash
@@ -67,6 +83,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ScholarHub includes a multi-stage production `Dockerfile` and a `docker-compose.yml` for local offline development or VPS deployment.
 
 ### Run with Docker Compose (App + Local PostgreSQL 16)
+Inject `POSTGRES_PASSWORD` and `DATABASE_URL` before starting Compose; neither has
+a default credential. Use a strong, unique password and a connection URL pointing
+to `db:5432` with the same password, `POSTGRES_USER`, and `POSTGRES_DB` (URL-encode
+the password in the URL). The default user is `postgres` and database is
+`scholarhub`. Compose stops with an error if either secret is missing.
+
 ```bash
 # 1. Start containers
 docker compose up -d
